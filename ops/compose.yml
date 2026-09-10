@@ -1,0 +1,26 @@
+services:
+  quickscope:
+    image: ${QUICKSCOPE_IMAGE:?Set an immutable image digest}
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8187:8080"
+    mem_limit: 1g
+    cpus: 1.5
+    pids_limit: 128
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m,noexec,nosuid
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    labels:
+      com.centurylinklabs.watchtower.enable: "false"
+    environment:
+      ORIGIN: https://bug.engineer
+      PASSWORD_HASH_FILE: /run/secrets/password_hash
+    volumes:
+      - /home/deploy/quickscope-secrets/password_hash:/run/secrets/password_hash:ro
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"

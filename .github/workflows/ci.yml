@@ -1,0 +1,41 @@
+name: Verify and publish immutable image
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+  packages: write
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm audit --audit-level=high
+      - run: npm run check && npm test && npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npx tsx scripts/browser-test.ts
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-evidence
+          path: test-results/
+      - uses: docker/login-action@v3
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/navesucks/quickscope:${{ github.sha }}
+          labels: org.opencontainers.image.source=https://github.com/NaveSucks/quickscope

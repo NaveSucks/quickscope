@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.env*
+!.env.example
+*.secret
+playwright-report/
+test-results/
+audit.json
