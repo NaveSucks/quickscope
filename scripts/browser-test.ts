@@ -163,7 +163,8 @@ try {
   room.until = 0;
   room.history = [];
   await page.waitForTimeout(500);
-  await page.mouse.down({ button: "right" });
+  // Dispatch relative-mode buttons without the driver injecting absolute mouse coordinates.
+  await page.evaluate(()=>window.dispatchEvent(new MouseEvent("mousedown",{button:2})));
   for (let n = 0; n < 40 && a.ads < 0.95; n++) await page.waitForTimeout(50);
   console.log(
     JSON.stringify({
@@ -180,13 +181,13 @@ try {
   );
   assert.ok(a.ads > 0.95);
   await page.screenshot({ path: "test-results/scoped.png" });
-  await page.mouse.down({ button: "left" });
+  await page.evaluate(()=>window.dispatchEvent(new MouseEvent("mousedown",{button:0})));
   await page.waitForTimeout(100);
-  await page.mouse.up({ button: "left" });
+  await page.evaluate(()=>window.dispatchEvent(new MouseEvent("mouseup",{button:0})));
   await page.waitForTimeout(500);
   assert.equal(a.kills, 15);
   assert.equal(room.phase, "replay");
-  await page.mouse.up({ button: "right" });
+  await page.evaluate(()=>window.dispatchEvent(new MouseEvent("mouseup",{button:2})));
   await page.waitForFunction(() =>
     document.getElementById("banner")!.textContent!.includes("FINAL KILLCAM"),
   );
