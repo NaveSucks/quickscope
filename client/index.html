@@ -1,1 +1,78 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Quickscope | Highrise</title></head><body><canvas id="view"></canvas><div id="hud"><div id="top"><b>QUICKSCOPE</b><span id="phase">CONNECTING</span><span id="connection">HIGHRISE / FFA · 15</span></div><div id="feed"></div><div id="crosshair">+</div><div id="scope"><i></i><b></b></div><div id="hit">×</div><div id="banner"></div><div id="bottom"><div><small>HEALTH</small><strong id="health">100</strong></div><div><small id="weapon">INTERVENTION</small><strong id="ammo">7 / ∞</strong></div></div><div id="scoreboard" hidden></div></div><div id="menu"><main><small>HIGHRISE / FREE FOR ALL</small><h1>QUICKSCOPE</h1><p id="status">Initializing rooftop…</p><button id="play" disabled>Deploy →</button><div class="settings"><label>Mouse sensitivity <input id="sensitivity" type="range" min="0.3" max="3" step="0.1"></label><label>ADS sensitivity <input id="adsSensitivity" type="range" min="0.2" max="1.5" step="0.1"></label><label>Field of view <input id="fov" type="range" min="65" max="110" step="1"></label><label>Volume <input id="volume" type="range" min="0" max="1" step="0.05"></label><label>Resolution scale <input id="quality" type="range" min="0.5" max="1" step="0.1"></label></div><p class="controls">WASD move · Mouse aim · LMB fire · Hold RMB scope<br>Shift sprint · Space jump / climb · C crouch · R reload<br>1 / 2 or wheel switch · Tab scores · Esc menu</p><button id="logout" class="secondary">Leave & lock</button></main></div><script type="module" src="/main.ts"></script></body></html>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Quickscope | Highrise</title>
+  </head>
+  <body>
+    <canvas id="view"></canvas>
+    <div id="hud">
+      <div id="top">
+        <b>QUICKSCOPE</b><span id="phase">CONNECTING</span
+        ><span id="connection">HIGHRISE / FFA · 15</span>
+      </div>
+      <div id="feed"></div>
+      <div id="crosshair">+</div>
+      <div id="scope"><i></i><b></b></div>
+      <div id="hit">×</div>
+      <div id="banner"></div>
+      <div id="bottom">
+        <div><small>HEALTH</small><strong id="health">100</strong></div>
+        <div>
+          <small id="weapon">INTERVENTION</small
+          ><strong id="ammo">7 / ∞</strong>
+        </div>
+      </div>
+      <div id="scoreboard" hidden></div>
+    </div>
+    <div id="menu">
+      <main>
+        <small>HIGHRISE / FREE FOR ALL</small>
+        <h1>QUICKSCOPE</h1>
+        <p id="status">Initializing rooftop…</p>
+        <button id="play" disabled>Deploy →</button>
+        <div class="settings">
+          <label
+            >Mouse sensitivity
+            <input
+              id="sensitivity"
+              type="range"
+              min="0.3"
+              max="3"
+              step="0.1" /></label
+          ><label
+            >ADS sensitivity
+            <input
+              id="adsSensitivity"
+              type="range"
+              min="0.2"
+              max="1.5"
+              step="0.1" /></label
+          ><label
+            >Field of view
+            <input id="fov" type="range" min="65" max="110" step="1" /></label
+          ><label
+            >Volume
+            <input
+              id="volume"
+              type="range"
+              min="0"
+              max="1"
+              step="0.05" /></label
+          ><label
+            >Resolution scale
+            <input id="quality" type="range" min="0.5" max="1" step="0.1"
+          /></label>
+        </div>
+        <p class="controls">
+          WASD move · Mouse aim · LMB fire · Hold RMB scope<br />Shift sprint ·
+          Space jump / climb · C crouch · R reload<br />1 / 2 or wheel switch ·
+          Tab scores · Esc menu
+        </p>
+        <button id="logout" class="secondary">Leave & lock</button>
+      </main>
+    </div>
+    <script type="module" src="/main.ts"></script>
+  </body>
+</html>
