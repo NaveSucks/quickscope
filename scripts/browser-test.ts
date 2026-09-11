@@ -184,7 +184,8 @@ try {
   await page.evaluate(()=>window.dispatchEvent(new MouseEvent("mousedown",{button:0})));
   await page.waitForTimeout(100);
   await page.evaluate(()=>window.dispatchEvent(new MouseEvent("mouseup",{button:0})));
-  await page.waitForTimeout(500);
+  for(let n=0;n<40&&a.kills<15;n++)await page.waitForTimeout(50);
+  console.log(JSON.stringify({shooter:{p:a.p,health:a.health,ads:a.ads,grounded:a.grounded,guns:a.guns},target:{p:b.p,health:b.health},recent:room.events.slice(-4),input:room.lastInput.get(a.id)}));
   assert.equal(a.kills, 15);
   assert.equal(room.phase, "replay");
   await page.evaluate(()=>window.dispatchEvent(new MouseEvent("mouseup",{button:2})));
