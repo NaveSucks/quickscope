@@ -30,6 +30,8 @@ workloads. Browser tests use a generated in-memory secret, never production auth
 
 See `docs/VALIDATION.md` for evidence and open acceptance requirements,
 `docs/MAP.md` for routes, and `docs/ASSETS.md` for provenance.
+Regenerate `docs/map.svg` from the authored map with
+`node --import tsx scripts/generate-map.ts`.
 
 ## Production and rollback
 
@@ -50,6 +52,10 @@ project and `ops/compose.yml`. This keeps builds off the production VPS.
    block, run `sudo nginx -t`, then reload. Never replace unrelated routes.
 6. Verify gate, direct asset denial, authenticated WebSocket/game, container image
    digest, health and existing Monster/advent routes. Retain rollback artifacts.
+
+For the required pre-release playtest, `ops/preview.sh` starts an immutable image
+on loopback port 8188. Tunnel it with
+`ssh -L 8188:127.0.0.1:8188 deploy@85.215.70.94`; it does not alter nginx.
 
 Secrets are outside Git and image layers. Public source/assets are copyable;
 the password protects hosted downloads and multiplayer, not the public project.
