@@ -8,12 +8,14 @@ pits Y=-3.6, helipad Y=2.4, office roofs Y=4.9. It is not an exact survey of the
 original game's collision mesh.
 
 Reference used for proportional authoring (viewed, not included in assets):
+
 - [Original-era overhead schematic](https://modernwarfaretutorials.blogspot.com/2012/01/high-rise-map-modern-warfare-2.html)
 - [Original MW2 crane footage](https://www.youtube.com/watch?v=BJYhZ620SCY)
 - [Official remaster guide](https://www.callofduty.com/guides/multiplayer-maps/call-of-duty-modern-warfare-iii-play-maps-core-multiplayer-map-guide-highrise),
   consulted as a cross-check; remaster traversal can differ.
 
 Pending manual comparison with original MW2 footage and route validation:
+
 - [ ] Office-to-office spawn sightlines and cover placement.
 - [ ] Both flanks around central helipad.
 - [ ] Both office stairs into the lower connector and exits.

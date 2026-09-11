@@ -40,6 +40,7 @@ export class Room {
   players = new Map<number, PlayerState>();
   queues = new Map<number, Input[]>();
   lastInput = new Map<number, Input>();
+  lastInputAt = new Map<number, number>();
   lastReceived = new Map<number, number>();
   history: Snapshot[] = [];
   events: GameEvent[] = [];
@@ -75,6 +76,7 @@ export class Room {
     this.players.delete(id);
     this.queues.delete(id);
     this.lastInput.delete(id);
+    this.lastInputAt.delete(id);
     this.lastReceived.delete(id);
     this.physics.remove(id);
   }
@@ -181,13 +183,16 @@ export class Room {
       if (i) {
         p.ack = i.seq;
         this.lastInput.set(p.id, i);
+        this.lastInputAt.set(p.id, now);
       } else {
         const prev = this.lastInput.get(p.id);
         i = prev
           ? {
               ...prev,
               buttons:
-                now - prev.time > 250 ? 0 : prev.buttons & ~(16 | 256 | 512),
+                now - (this.lastInputAt.get(p.id) ?? -Infinity) > 250
+                  ? 0
+                  : prev.buttons & ~(16 | 256 | 512),
             }
           : {
               seq: p.ack,

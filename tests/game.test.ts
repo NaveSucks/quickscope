@@ -229,3 +229,19 @@ test("hit zones apply Intervention and pistol damage through authoritative rays"
     r.physics.free();
   }
 });
+
+test("held input freshness uses server receipt time under high latency", () => {
+  const room = new Room();
+  const player = room.add("Lagged")!;
+  room.now = 1000;
+  room.input(player.id, input({ time: 500, buttons: B.ads }));
+  room.tick(1000);
+  assert.ok(player.ads > 0);
+  room.tick(1200);
+  assert.ok(player.ads > 0);
+  room.tick(1300);
+  assert.equal(room.lastInput.get(player.id)?.buttons, B.ads);
+  room.tick(1500);
+  assert.equal(player.ads, 0);
+  room.physics.free();
+});

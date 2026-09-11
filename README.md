@@ -46,7 +46,7 @@ project and `ops/compose.yml`. This keeps builds off the production VPS.
 3. Store `QUICKSCOPE_IMAGE=ghcr.io/navesucks/quickscope@sha256:...` in a protected
    host file outside this repository; retain prior digest and configuration.
 4. `docker compose --env-file /home/deploy/quickscope-ops/image.env -p quickscope
-   -f ops/compose.yml config --quiet`, then app-specific `pull quickscope` and
+-f ops/compose.yml config --quiet`, then app-specific `pull quickscope` and
    `up -d --no-deps --no-build quickscope`.
 5. Back up the exact nginx site file, insert `ops/nginx-location.conf` in its HTTPS
    block, run `sudo nginx -t`, then reload. Never replace unrelated routes.

@@ -23,6 +23,7 @@ review, real integrated-GPU laptop 60FPS/1080p measurement, Firefox/Edge/Safari
 checks, production app deployment, external HTTPS and rollback verification.
 
 Known limitations to resolve before declaring the planned v1 complete:
+
 - Greybox dimensions and route fidelity are estimates awaiting reference review.
 - Basic procedural animation/audio need human gameplay review.
 - Replay records accepted hit/target pose; server holds players during aftermath.
