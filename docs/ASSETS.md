@@ -11,4 +11,5 @@ Rapier Apache-2.0, Fastify MIT, ws MIT, Vite MIT, TypeScript Apache-2.0.
 
 Highrise, Intervention, MW2 and Call of Duty identify the inspiration; this
 independent community project is not affiliated with or endorsed by Activision.
-Map layout and nostalgic feel are pending human reference/playtest review.
+The initial human gameplay preview was approved. Exact map-reference fidelity
+and further nostalgic-feel tuning remain open work.

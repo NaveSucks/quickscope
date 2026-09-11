@@ -4,9 +4,10 @@ A password-gated desktop browser rooftop FPS prototype for
 https://bug.engineer/quickscope/. One server-owned room, 18 slots, free-for-all
 to 15 kills, Intervention/pistol, original procedural assets and final killcam.
 
-**Release status: development; not yet approved by a human gameplay playtest.**
-The Highrise-inspired greybox is provisional. Do not describe it as a measured,
-validated reconstruction or claim integrated-GPU performance without testing.
+**Release status: deployed; the human gameplay preview was approved on
+2026-09-11.** The Highrise-inspired layout remains a proportional reconstruction,
+not a measured collision-mesh reproduction. Do not claim exact map fidelity or
+integrated-GPU performance without the remaining validation documented below.
 
 ## Development
 
@@ -53,7 +54,7 @@ project and `ops/compose.yml`. This keeps builds off the production VPS.
 6. Verify gate, direct asset denial, authenticated WebSocket/game, container image
    digest, health and existing Monster/advent routes. Retain rollback artifacts.
 
-For the required pre-release playtest, `ops/preview.sh` starts an immutable image
+For a pre-release playtest, `ops/preview.sh` starts an immutable image
 on loopback port 8188. Tunnel it with
 `ssh -L 8188:127.0.0.1:8188 deploy@85.215.70.94`; it does not alter nginx.
 
