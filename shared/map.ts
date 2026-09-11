@@ -42,8 +42,12 @@ function plan(
 }
 // Split main deck around the two characteristic west-side red pits.
 plan("west-rim", 137, 192, 162, 431);
-plan("east-deck", 220, 192, 333, 431);
-plan("north-crossing", 162, 192, 220, 218);
+plan("east-main-deck", 220, 192, 307, 431);
+plan("east-edge-deck", 324, 192, 333, 431);
+plan("east-north-deck", 307, 192, 324, 303);
+plan("east-south-deck", 307, 318, 324, 431);
+plan("north-west-crossing", 162, 192, 177, 218);
+plan("north-east-crossing", 209, 192, 220, 218);
 plan("middle-crossing", 162, 286, 220, 315);
 plan("south-crossing", 162, 410, 220, 431);
 plan("north-red-pit", 162, 218, 220, 286, -3.6, 0.6, 0x8a4f3d, "rust");
@@ -53,7 +57,17 @@ for (const [name, z1, z2] of [
   ["south", 315, 410],
 ] as const) {
   plan(`${name}-pit-west`, 160, z1, 162, z2, 0, 3.6, 0x944c36, "rust");
-  plan(`${name}-pit-east`, 220, z1, 222, z2, 0, 3.6, 0x944c36, "rust");
+  plan(
+    `${name}-pit-east`,
+    220,
+    name === "south" ? 322 : z1,
+    222,
+    z2,
+    0,
+    3.6,
+    0x944c36,
+    "rust",
+  );
 }
 // Lower north/south connector, open pits, and helipad-side exit.
 plan("lower-between-pits", 176, 278, 207, 324, -3.6, 0.5, 0x764e3e, "rust");
@@ -63,6 +77,9 @@ plan("north-tunnel-west", 177, 177, 180, 218, 0, 3.6);
 plan("north-tunnel-east", 206, 177, 209, 218, 0, 3.6);
 plan("south-tunnel-west", 177, 410, 180, 465, 0, 3.6);
 plan("south-tunnel-east", 207, 410, 210, 465, 0, 3.6);
+plan("helipad-lower-exit", 205, 305, 324, 322, -3.6, 0.5, 0x64695e);
+plan("helipad-tunnel-north", 222, 303, 307, 305, 0, 3.6);
+plan("helipad-tunnel-south", 222, 322, 324, 324, 0, 3.6);
 // Stair openings must stay open in upper floor slabs.
 function stairs(
   id: string,
@@ -78,7 +95,7 @@ function stairs(
     box(`${id}-${n}`, x, base + h / 2, z + side * n * 0.38, width, h, 0.38);
   }
 }
-stairs("north-lower-stairs", -11.4, -25.2, -1);
+stairs("north-lower-stairs", -9, -28.04, -1);
 stairs("south-lower-stairs", -11.2, 29.8, 1);
 // Helipad is offset east; top deck and stairs dominate the central silhouette.
 plan("helipad", 238, 296, 299, 344, 2.4, 0.4, 0x5b6456, "roof");
@@ -194,8 +211,8 @@ export const map: MapDefinition = {
   ],
   ladders: [
     { p: { x: -27, y: 0, z: -8 }, top: 5 },
-    { p: { x: 26.3, y: 1, z: 27 }, top: 4.6 },
-    { p: { x: 12.5, y: -3.6, z: 3 }, top: 3.4 },
+    { p: { x: 26.3, y: 1, z: 26.3 }, top: 4.6 },
+    { p: { x: 18.96, y: -3.6, z: -0.96 }, top: 1.2 },
   ],
   mantles: [
     { p: { x: 27.8, y: 3.65, z: 53 }, target: { x: 26.2, y: 5.8, z: 53 } },

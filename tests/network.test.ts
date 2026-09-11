@@ -35,11 +35,11 @@ test("socket auth, origin, one session connection, malformed input, immediate di
     );
     ws.send(Buffer.from([1, 2]));
     await closed;
-    await sleep(10);
+    for (let n = 0; room.players.size && n < 100; n++) await sleep(10);
     assert.equal(room.players.size, 0);
     const next = await connect(url, cookie);
     next.close();
-    await sleep(30);
+    for (let n = 0; room.players.size && n < 100; n++) await sleep(10);
     assert.equal(room.players.size, 0);
   } finally {
     await app.close();

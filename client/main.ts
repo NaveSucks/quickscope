@@ -37,6 +37,10 @@ for (const key of Object.keys(settings) as (keyof typeof settings)[]) {
     settings[key] = Number(input.value);
     localStorage.setItem("qs-settings", JSON.stringify(settings));
     resize();
+    if (key === "volume" && settings.volume > 0) {
+      sound.volume = settings.volume;
+      sound.start();
+    }
   };
 }
 const renderer = new T.WebGLRenderer({
@@ -104,6 +108,7 @@ let replay:
     }
   | undefined;
 let ws: WebSocket;
+let lastDraw = 0;
 const diagnostics = {
   corrections: [] as number[],
   rtt: 0,
@@ -328,8 +333,13 @@ async function start() {
     const authoritative = s.players.find((p) => p.id === id);
     const previousPosition = local ? { ...local.p } : undefined;
     const previousHealth = local?.health;
+    const previousLife = local?.life;
     if (!authoritative) return;
-    if (!local || (local.health <= 0 && authoritative.health > 0)) {
+    if (
+      !local ||
+      local.life !== authoritative.life ||
+      (local.health <= 0 && authoritative.health > 0)
+    ) {
       yaw = authoritative.yaw;
       pitch = authoritative.pitch;
       pending = [];
@@ -347,6 +357,7 @@ async function start() {
       }
     if (
       previousPosition &&
+      previousLife === local.life &&
       (previousHealth ?? 0) > 0 &&
       local.health > 0 &&
       s.phase === "active"
@@ -462,7 +473,7 @@ function render(now: number) {
       if (target) Object.assign(target, hit.pose);
     }
     el("banner").textContent =
-      `FINAL KILLCAM · ${names[replay.winner] || "Winner"}`;
+      `FINAL KILLCAM · ${names[replay.winner] || replay.frames[0]?.players.find((p) => p.id === replay!.winner)?.name || "Winner"}`;
   }
   if (display) {
     const visible = new Set<number>();
@@ -475,7 +486,7 @@ function render(now: number) {
         remote.set(p.id, g);
         scene.add(g);
       }
-      poseAvatar(g, p, now);
+      poseAvatar(g, p, replay ? replayTime : serverNow - 100);
     }
     for (const [pid, g] of remote) if (!visible.has(pid)) g.visible = false;
   }
@@ -529,7 +540,7 @@ function render(now: number) {
               ) * Math.PI,
             )
           : 0,
-        sprint = keys.has("ShiftLeft") && !ads;
+        sprint = view!.sprinting && !ads;
       g.position.set(
         0.24 * (1 - ads),
         -0.25 + ads * 0.08 - swap * 0.5 - reload * 0.15,
@@ -567,7 +578,10 @@ function render(now: number) {
   el("connection").textContent =
     `${latest?.players.length || 0} / 18 · ${Math.round(diagnostics.rtt)} MS`;
   el("hit").style.opacity = now < hitUntil ? "1" : "0";
-  renderer.render(scene, camera);
+  if (locked() || replay || now - lastDraw >= 200) {
+    renderer.render(scene, camera);
+    lastDraw = now;
+  }
   requestAnimationFrame(render);
 }
 start().catch((e) => {

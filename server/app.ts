@@ -52,7 +52,7 @@ export async function createApp(
     if (auth.sessions.size >= 2000)
       return r.code(503).send({ error: "Session capacity" });
     const old = auth.get(req.headers.cookie);
-    if (old?.player) sockets.get(old.player)?.close(1000, "Session replaced");
+    if (old?.player) sockets.get(old.player)?.terminate();
     auth.sessions.delete(auth.token(req.headers.cookie));
     return r
       .header("Set-Cookie", auth.cookie(auth.create()))
@@ -61,7 +61,7 @@ export async function createApp(
   app.delete("/quickscope/api/session", async (req, r) => {
     if (req.headers.origin !== origin) return r.code(403).send();
     const s = auth.get(req.headers.cookie);
-    if (s?.player) sockets.get(s.player)?.close(1000, "Signed out");
+    if (s?.player) sockets.get(s.player)?.terminate();
     auth.sessions.delete(auth.token(req.headers.cookie));
     return r.header("Set-Cookie", auth.cookie("", 0)).send({ ok: true });
   });
@@ -186,6 +186,13 @@ export async function createApp(
       ws.on("error", () => ws.terminate());
       ws.on("message", (data, binary) => {
         const now = Date.now();
+        if (
+          now >= s!.expires ||
+          !auth.sessions.has(auth.token(req.headers.cookie))
+        ) {
+          ws.terminate();
+          return;
+        }
         if (now - window >= 1000) {
           window = now;
           rate = 0;

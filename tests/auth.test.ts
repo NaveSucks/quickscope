@@ -83,3 +83,50 @@ test("gate imports nothing and every nested game path is authenticated", async (
     await app.close();
   }
 });
+test("encoded asset paths, expiry and HTTP password throttling remain gated", async () => {
+  const { app, auth } = await createApp(hash, origin);
+  try {
+    for (const url of [
+      "/quickscope/%67ame/index.html",
+      "/quickscope/game%2findex.html",
+      "/quickscope/game/%2e%2e/index.html",
+      "//quickscope/game/index.html",
+    ])
+      assert.notEqual((await app.inject({ url })).statusCode, 200, url);
+    const token = auth.create(Date.now() - 8 * 3600000 - 1);
+    assert.equal(
+      (
+        await app.inject({
+          url: "/quickscope/game/index.html",
+          headers: { cookie: "qs=" + token },
+        })
+      ).statusCode,
+      401,
+    );
+    for (let n = 0; n < 5; n++)
+      assert.equal(
+        (
+          await app.inject({
+            method: "POST",
+            url: "/quickscope/api/session",
+            headers: { origin },
+            payload: { password: "incorrect" },
+          })
+        ).statusCode,
+        401,
+      );
+    assert.equal(
+      (
+        await app.inject({
+          method: "POST",
+          url: "/quickscope/api/session",
+          headers: { origin },
+          payload: { password },
+        })
+      ).statusCode,
+      429,
+    );
+  } finally {
+    await app.close();
+  }
+});

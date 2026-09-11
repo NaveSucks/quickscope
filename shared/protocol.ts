@@ -78,7 +78,14 @@ export function encodeSnapshot(s: Snapshot) {
     v.setUint8(o + 80, p.weapon);
     v.setUint8(o + 81, p.guns[0].ammo);
     v.setUint8(o + 82, p.guns[1].ammo);
-    v.setUint8(o + 83, Number(p.grounded) | (Number(p.crouch) << 1));
+    v.setUint8(
+      o + 83,
+      Number(p.grounded) |
+        (Number(p.crouch) << 1) |
+        (Number(p.moving) << 2) |
+        (Number(p.sprinting) << 3),
+    );
+    v.setUint32(o + 84, p.life, true);
   }
   return a;
 }
@@ -104,6 +111,9 @@ export function decodeSnapshot(a: ArrayBuffer): Snapshot {
       flags = v.getUint8(o + 83);
     s.players.push({
       id: v.getUint16(o, true),
+      life: v.getUint32(o + 84, true),
+      moving: !!(flags & 4),
+      sprinting: !!(flags & 8),
       ack: v.getUint32(o + 2, true),
       name: "",
       p: { x: n(0), y: n(1), z: n(2) },

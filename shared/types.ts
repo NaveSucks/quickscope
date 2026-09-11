@@ -57,6 +57,9 @@ export interface GunState {
   reloadEnd: number;
 }
 export interface PlayerState {
+  life: number;
+  moving: boolean;
+  sprinting: boolean;
   id: number;
   name: string;
   p: Vec;
@@ -96,7 +99,7 @@ export type GameEvent =
       pose?: PlayerState;
     }
   | { type: "death"; time: number; id: number; killer?: number }
-  | { type: "phase"; phase: Phase; until: number }
+  | { type: "phase"; time: number; phase: Phase; until: number }
   | { type: "welcome"; id: number; names: Record<number, string> }
   | { type: "roster"; names: Record<number, string> }
   | {

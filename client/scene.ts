@@ -1,4 +1,5 @@
 import * as T from "three";
+import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { map } from "../shared/map.ts";
 import type { PlayerState } from "../shared/types.ts";
 export const scene = new T.Scene();
@@ -34,6 +35,7 @@ const textures = {
   roof: texture(65),
   wood: texture(92),
 };
+const batches = new Map<string, T.BufferGeometry[]>();
 for (const b of map.boxes) {
   const key = `${b.color}-${b.material}`;
   if (!materials.has(key))
@@ -44,12 +46,14 @@ for (const b of map.boxes) {
         map: textures[b.material as keyof typeof textures] || textures.concrete,
       }),
     );
-  const m = new T.Mesh(
-    new T.BoxGeometry(b.s.x, b.s.y, b.s.z),
-    materials.get(key),
-  );
-  m.position.set(b.p.x, b.p.y, b.p.z);
-  scene.add(m);
+  const geometry = new T.BoxGeometry(b.s.x, b.s.y, b.s.z);
+  geometry.translate(b.p.x, b.p.y, b.p.z);
+  if (!batches.has(key)) batches.set(key, []);
+  batches.get(key)!.push(geometry);
+}
+for (const [key, geometries] of batches) {
+  scene.add(new T.Mesh(mergeGeometries(geometries), materials.get(key)));
+  geometries.forEach((g) => g.dispose());
 }
 function label(
   text: string,
@@ -83,29 +87,37 @@ function label(
 label("H", 6.8, 2.41, 1, 9);
 label("NORTH", -2, 3.5, -45.8, 7, 0);
 label("SOUTH", 1, 3.5, 54.5, 7, 0);
-for (const l of map.ladders) {
-  for (let y = l.p.y; y < l.top; y += 0.4) {
-    const m = new T.Mesh(
-      new T.BoxGeometry(1.2, 0.07, 0.1),
-      new T.MeshLambertMaterial({ color: 0xc4a761 }),
-    );
-    m.position.set(l.p.x, y, l.p.z);
-    scene.add(m);
-  }
-}
+const rungGeometry = new T.BoxGeometry(1.2, 0.07, 0.1),
+  rungMaterial = new T.MeshLambertMaterial({ color: 0xc4a761 }),
+  rungs: T.Matrix4[] = [];
+for (const l of map.ladders)
+  for (let y = l.p.y; y < l.top; y += 0.4)
+    rungs.push(new T.Matrix4().makeTranslation(l.p.x, y, l.p.z));
+const ladderMesh = new T.InstancedMesh(
+  rungGeometry,
+  rungMaterial,
+  rungs.length,
+);
+rungs.forEach((m, i) => ladderMesh.setMatrixAt(i, m));
+scene.add(ladderMesh);
 // Distant skyline is decorative only; deterministic, original geometry.
-const skylineMat = new T.MeshLambertMaterial({ color: 0x697c73 });
+const skyline = new T.InstancedMesh(
+  new T.BoxGeometry(1, 1, 1),
+  new T.MeshLambertMaterial({ color: 0x697c73 }),
+  60,
+);
 for (let n = 0; n < 60; n++) {
   const a = n * 2.3999,
     r = 85 + (n % 5) * 15,
     h = 15 + ((n * 17) % 70);
-  const m = new T.Mesh(
-    new T.BoxGeometry(8 + (n % 9), h, 8 + (n % 6)),
-    skylineMat,
+  const m = new T.Matrix4().compose(
+    new T.Vector3(Math.sin(a) * r, h / 2 - 65, Math.cos(a) * r),
+    new T.Quaternion(),
+    new T.Vector3(8 + (n % 9), h, 8 + (n % 6)),
   );
-  m.position.set(Math.sin(a) * r, h / 2 - 65, Math.cos(a) * r);
-  scene.add(m);
+  skyline.setMatrixAt(n, m);
 }
+scene.add(skyline);
 export function avatar() {
   const g = new T.Group();
   const uniform = new T.MeshLambertMaterial({ color: 0x46594d }),
@@ -137,7 +149,13 @@ export function poseAvatar(g: T.Group, p: PlayerState, time: number) {
   g.visible = p.health > 0;
   g.children[6].rotation.x = p.pitch;
   g.children[6].scale.z = p.weapon === 1 ? 0.4 : 1;
-  const stride = p.grounded ? Math.sin(time * 0.013) * 0.1 : 0;
+  const stride =
+    p.grounded && p.moving
+      ? Math.sin(time * (p.sprinting ? 0.018 : 0.013)) * 0.35
+      : 0;
+  g.children[4].rotation.x =
+    p.guns[p.weapon].reloadEnd > time ? -0.8 : -p.ads * 0.3;
+  g.children[5].rotation.x = -p.ads * 0.3;
   g.children[2].rotation.x = stride;
   g.children[3].rotation.x = -stride;
 }

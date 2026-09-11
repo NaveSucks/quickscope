@@ -4,6 +4,7 @@ export class Sound {
   ctx?: AudioContext;
   volume = 0.5;
   start() {
+    if (this.volume <= 0) return;
     this.ctx ??= new AudioContext();
     void this.ctx.resume();
   }

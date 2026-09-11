@@ -12,6 +12,9 @@ import {
 export function makePlayer(id: number, name: string, now: number): PlayerState {
   return {
     id,
+    life: 0,
+    moving: false,
+    sprinting: false,
     name,
     p: { ...map.spawns[0] },
     vy: 0,
@@ -100,7 +103,7 @@ export class Room {
   phaseTo(phase: Phase, duration = 0) {
     this.phase = phase;
     this.until = this.now + duration;
-    this.event({ type: "phase", phase, until: this.until });
+    this.event({ type: "phase", time: this.now, phase, until: this.until });
   }
   spawn(p: PlayerState) {
     let best = map.spawns[0],
@@ -122,12 +125,14 @@ export class Room {
         best = s;
       }
     }
+    const life = p.life + 1;
     const kills = p.kills,
       deaths = p.deaths,
       ack = p.ack;
     Object.assign(p, makePlayer(p.id, p.name, this.now), {
       p: { ...best },
       yaw: best.z < 0 ? Math.PI : 0,
+      life,
       kills,
       deaths,
       ack,
@@ -254,16 +259,9 @@ export class Room {
       const old = frame?.players.find(
         (t) => t.id === target.id && t.health > 0,
       );
-      const t = structuredClone(
-        old && old.respawnAt === target.respawnAt ? old : target,
-      );
+      const t = structuredClone(old && old.life === target.life ? old : target);
       const next = nextFrame?.players.find((n) => n.id === target.id) || target;
-      if (
-        old &&
-        old.health > 0 &&
-        next.health > 0 &&
-        old.protectedUntil === next.protectedUntil
-      ) {
+      if (old && old.health > 0 && next.health > 0 && old.life === next.life) {
         const blend = Math.max(
           0,
           Math.min(

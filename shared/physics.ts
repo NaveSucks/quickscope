@@ -9,6 +9,7 @@ export class Physics {
   world = new RAPIER.World({ x: 0, y: -22, z: 0 });
   controller = this.world.createCharacterController(0.02);
   characters = new Map<number, RAPIER.Collider>();
+  stances = new Map<number, boolean>();
   constructor() {
     for (const b of map.boxes)
       this.world.createCollider(
@@ -26,6 +27,7 @@ export class Physics {
     const c = this.characters.get(id);
     if (c) this.world.removeCollider(c, true);
     this.characters.delete(id);
+    this.stances.delete(id);
   }
   move(p: PlayerState, i: Input) {
     let c = this.characters.get(p.id);
@@ -36,6 +38,7 @@ export class Physics {
           .setSensor(true),
       );
       this.characters.set(p.id, c);
+      this.stances.set(p.id, false);
     }
     // Preserve feet when changing stance; a ceiling can prevent standing back up.
     c.setTranslation(p.p);
@@ -57,10 +60,14 @@ export class Physics {
         p.crouch = false;
       }
     }
-    c.setShape(new RAPIER.Capsule(p.crouch ? 0.25 : 0.55, 0.3));
+    if (this.stances.get(p.id) !== p.crouch) {
+      c.setShape(new RAPIER.Capsule(p.crouch ? 0.25 : 0.55, 0.3));
+      this.stances.set(p.id, p.crouch);
+    }
     c.setTranslation(p.p);
     p.yaw = i.yaw;
     p.pitch = i.pitch;
+    p.sprinting = !!(i.buttons & B.sprint) && !(i.buttons & B.ads) && !p.crouch;
     const speed = p.crouch
       ? 2.5
       : i.buttons & B.sprint && !(i.buttons & B.ads)
@@ -81,7 +88,11 @@ export class Physics {
         p.p.y > l.p.y - 0.5 &&
         p.p.y < l.top,
     );
-    if (ladder && i.buttons & B.forward) p.vy = 4;
+    if (ladder && i.buttons & B.forward) {
+      p.vy = 4;
+      x = 0;
+      z = 0;
+    }
     const mantle = map.mantles.find(
       (m) =>
         Math.hypot(p.p.x - m.p.x, p.p.z - m.p.z) < 1.3 &&
@@ -106,6 +117,7 @@ export class Physics {
       RAPIER.QueryFilterFlags.EXCLUDE_SENSORS,
     );
     const m = this.controller.computedMovement();
+    p.moving = Math.hypot(m.x, m.z) > 0.001;
     p.p = { x: p.p.x + m.x, y: p.p.y + m.y, z: p.p.z + m.z };
     p.grounded = this.controller.computedGrounded();
     if (p.grounded && p.vy < 0) p.vy = 0;

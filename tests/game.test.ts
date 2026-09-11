@@ -202,3 +202,30 @@ test("crouching preserves foot position and restores standing height", () => {
   assert.ok(Math.abs(p.p.y - 0.85 - feet) < 0.05);
   r.physics.free();
 });
+test("hit zones apply Intervention and pistol damage through authoritative rays", () => {
+  for (const [weapon, offset, health] of [
+    [0, 0.62, 0],
+    [0, 0.18, 0],
+    [0, -0.2, 30],
+    [0, -0.58, 50],
+    [1, 0.62, 32],
+    [1, 0.18, 66],
+  ] as const) {
+    const r = new Room(),
+      a = r.add("A")!,
+      b = r.add("B")!;
+    r.phase = "active";
+    r.now = 1000;
+    a.p = { x: 17, y: 0.88, z: 5 };
+    b.p = { x: 17, y: 0.88, z: -4 };
+    a.yaw = 0;
+    a.pitch = Math.atan2(offset - 0.6, 9);
+    a.grounded = true;
+    a.ads = 1;
+    a.weapon = weapon;
+    b.protectedUntil = 0;
+    r.shoot(a, input());
+    assert.equal(b.health, health, `weapon ${weapon} offset ${offset}`);
+    r.physics.free();
+  }
+});
